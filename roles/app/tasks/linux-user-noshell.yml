@@ -1,2 +1,2 @@
 - name: Create a Linux User with non-interactive shell
-  shell: "useradd -r -s /sbin/nologin {{ task_username }}"
+  shell: "useradd -r -s /sbin/nologin {{ username }}"

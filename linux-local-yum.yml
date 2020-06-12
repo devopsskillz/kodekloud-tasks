@@ -1,0 +1,11 @@
+- hosts: "{{ servers }}"
+  vars:
+    servers: backup
+    repo_name: epel_local
+    repo_mount: /packages/downloaded_rpms/
+    package: wget
+  gather_facts: no
+  roles:
+  - role: backup
+    become: yes
+    action: linux-local-yum

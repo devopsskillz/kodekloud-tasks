@@ -6,8 +6,8 @@
 - name: Create a Cron Job
   cron:
     name: test
-    minute: "*/5"
-    job: "echo hello > /tmp/cron_text"
+    minute: "{{ minute }}"
+    job: "{{ job }}"
 
 - name: Start crond
   service:

@@ -1,10 +1,10 @@
-- hosts: "{{ task_host }}"
-  vars_files:
-  - conf/vars.yml
-  - conf/vault.yml
+- hosts: "{{ servers }}"
+  vars:
+    servers: app
+    minute: "*/5"
+    job: "echo hello > /tmp/cron_text"
   gather_facts: no
   roles:
   - role: app
     become: yes
     action: linux-cronjobs
-    action_hint: linux cron job creation

@@ -1,0 +1,13 @@
+- name: Configure Local Yum repos
+  yum_repository:
+    name: "{{ repo_name }}"
+    baseurl: "file://{{ repo_mount }}"
+    enabled: yes
+    gpgcheck: no
+
+- name: Install {{ package }} package
+  yum:
+    name: "{{ package }}"
+    state: latest
+    update_cache: yes
+

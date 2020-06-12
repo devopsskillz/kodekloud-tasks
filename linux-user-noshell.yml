@@ -1,10 +1,9 @@
-- hosts: "{{ task_host }}"
-  vars_files:
-  - conf/vars.yml
-  - conf/vault.yml
+- hosts: "{{ servers }}"
+  vars:
+    servers: stapp03
+    username: anita
   gather_facts: no
   roles:
   - role: app
     become: yes
     action: linux-user-noshell
-    action_hint: linux user creation

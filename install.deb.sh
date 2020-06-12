@@ -30,6 +30,7 @@ ansible_deploy() {
     ANSIBLE_VERSION='2.9.9'
     ANSIBLE_CONFIG="$ROOT_DIR/conf/ansible.cfg"
     ANSIBLE_INVENTORY="$ROOT_DIR/conf/hosts"
+    ANSIBLE_VAULT_PASS="$ROOT_DIR/conf/.vault_pass"
     ANSIBLE_INSTALLED=$(dpkg-query -W --showformat='${Status}\n' ansible | grep "install ok installed")
     if [ -z "$ANSIBLE_INSTALLED" ]; then
         pgreen "Installing Ansible..." && \
@@ -46,6 +47,10 @@ ansible_deploy() {
     if [ -e "$ANSIBLE_INVENTORY" ]; then
         cp -fu $ANSIBLE_INVENTORY '/etc/ansible/' 2>/dev/null || \
         abort "Failed to copy Ansible inventory."
+    fi
+    if [ -e "$ANSIBLE_VAULT_PASS" ]; then
+      cp -fu $ANSIBLE_VAULT_PASS '/etc/ansible/' 2>/dev/null || \
+      pred "Failed to copy Ansible vault password file."
     fi
 }
 

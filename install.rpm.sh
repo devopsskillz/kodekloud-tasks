@@ -30,12 +30,15 @@ ansible_deploy() {
     ANSIBLE_VERSION='2.9.9'
     ANSIBLE_CONFIG="$ROOT_DIR/conf/ansible.cfg"
     ANSIBLE_INVENTORY="$ROOT_DIR/conf/hosts"
-    if [ -z $(rpm -qa epel-release) ]; then
+    ANSIBLE_VAULT_PASS="$ROOT_DIR/conf/.vault_pass"
+    ANSIBLE_INSTALLED=$(rpm -qa ansible)
+    EPEL_INSTALLED=$(rpm -qa epel-release)
+    if [ -z $EPEL_INSTALLED ]; then
         pgreen "Installing EPEL repo..." && \
         yum -y -q install epel-release 2>/dev/null || \
         abort "Failed to install EPEL repo."
     fi
-    if [ -z $(rpm -qa ansible) ]; then
+    if [ -z $ANSIBLE_INSTALLED ]; then
         pgreen "Installing Ansible..." && \
         yum -y -q install ansible-$ANSIBLE_VERSION 2>/dev/null || \
         abort "Failed to install Ansible."
@@ -47,6 +50,10 @@ ansible_deploy() {
     if [ -e "$ANSIBLE_INVENTORY" ]; then
         cp -fu $ANSIBLE_INVENTORY '/etc/ansible/' 2>/dev/null || \
         abort "Failed to copy Ansible inventory."
+    fi
+    if [ -e "$ANSIBLE_VAULT_PASS" ]; then
+        cp -fu $ANSIBLE_VAULT_PASS '/etc/ansible/' 2>/dev/null || \
+        pred "Failed to copy Ansible vault password file."
     fi
 }
 

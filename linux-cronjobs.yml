@@ -1,0 +1,10 @@
+- hosts: "{{ task_host }}"
+  vars_files:
+  - conf/vars.yml
+  - conf/vault.yml
+  gather_facts: no
+  roles:
+  - role: app
+    become: yes
+    action: linux-cronjobs
+    action_hint: linux cron job creation

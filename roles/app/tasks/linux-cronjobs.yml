@@ -1,0 +1,15 @@
+- name: Install cronie package
+  yum:
+    name: cronie
+    state: present
+
+- name: Create a Cron Job
+  cron:
+    name: test
+    minute: "*/5"
+    job: "echo hello > /tmp/cron_text"
+
+- name: Start crond
+  service:
+    name: crond
+    state: started

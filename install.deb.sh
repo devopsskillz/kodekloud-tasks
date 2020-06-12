@@ -50,8 +50,8 @@ ansible_deploy() {
 }
 
 # Deploy control node
-if ans_deploy; then
-  succeed "Ansible was deployed successfully on this node."
+if ansible_deploy; then
+  succeed "Ansible has been installed successfully on this node."
 else
-  abort "Ansible deploying has failed."
+  abort "Ansible installation has failed."
 fi

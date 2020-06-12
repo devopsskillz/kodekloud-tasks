@@ -34,17 +34,17 @@ ansible_deploy() {
     if [ -z "$ANSIBLE_INSTALLED" ]; then
         pgreen "Installing Ansible..." && \
         apt-get update 2>/dev/null && \
-        apt-get --force-yes --yes install software-properties-common 2>/dev/null && \
-        apt-add-repository --yes --update ppa:ansible/ansible 2>/dev/null && \
-        apt-get --force-yes --yes install ansible=ANSIBLE_VERSION 2>/dev/null || \
+        apt-get --force-yes -qq install software-properties-common 2>/dev/null && \
+        apt-add-repository -y --update ppa:ansible/ansible 2>/dev/null && \
+        apt-get --force-yes -qq install ansible="$ANSIBLE_VERSION*" 2>/dev/null || \
         abort "Failed to install Ansible."
     fi
-    if [ -e "$ANS_CFG" ]; then
-        cp -fu $ANS_CFG '/etc/ansible/' 2>/dev/null || \
+    if [ -e "$ANSIBLE_CONFIG" ]; then
+        cp -fu $ANSIBLE_CONFIG '/etc/ansible/' 2>/dev/null || \
         abort "Failed to copy Ansible configuration."
     fi
-    if [ -e "$ANS_INV" ]; then
-        cp -fu $ANS_INV '/etc/ansible/' 2>/dev/null || \
+    if [ -e "$ANSIBLE_INVENTORY" ]; then
+        cp -fu $ANSIBLE_INVENTORY '/etc/ansible/' 2>/dev/null || \
         abort "Failed to copy Ansible inventory."
     fi
 }

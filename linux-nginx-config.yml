@@ -1,0 +1,11 @@
+- hosts: "{{ servers }}"
+  vars:
+    servers: backup
+    apache_port: 6000
+    nginx_port: 8092
+    index_file: /home/index.html
+  gather_facts: no
+  roles:
+  - role: backup
+    become: yes
+    action: linux-nginx-config

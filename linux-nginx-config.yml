@@ -1,6 +1,6 @@
-- hosts: "{{ servers }}"
+- hosts: "{{ target_hosts | default('all') }}"
   vars:
-    servers: backup
+    target_hosts: backup
     apache_port: 6000
     nginx_port: 8092
     index_file: /home/index.html

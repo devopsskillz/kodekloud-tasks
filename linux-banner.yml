@@ -1,10 +1,9 @@
 - hosts: "{{ target_hosts | default('all') }}"
   vars:
-    target_hosts: app
-    minute: "*/5"
-    job: "echo hello > /tmp/cron_text"
+    target_hosts: app:database
+    banner_file: /home/thor/nautilus_banner
   gather_facts: no
   roles:
   - role: app
     become: yes
-    action: linux-cronjobs
+    action: linux-banner

@@ -1,0 +1,8 @@
+- name: Copy linux banner to the node
+  copy:
+    src: "{{ banner_file }}"
+    dest: /etc/motd
+    mode: 0644
+    owner: root
+    group: root
+    force: yes

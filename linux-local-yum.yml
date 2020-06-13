@@ -1,6 +1,6 @@
-- hosts: "{{ servers }}"
+- hosts: "{{ target_hosts | default('all') }}"
   vars:
-    servers: backup
+    target_hosts: backup
     repo_name: epel_local
     repo_mount: /packages/downloaded_rpms/
     package: wget

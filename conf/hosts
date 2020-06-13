@@ -6,8 +6,20 @@ stapp01 ansible_host='{{ stapp01.host }}' ansible_user='{{ stapp01.user }}' ansi
 stapp02 ansible_host='{{ stapp02.host }}' ansible_user='{{ stapp02.user }}' ansible_ssh_pass='{{ stapp02.pass }}' ansible_become=yes ansible_become_pass='{{ stapp02.pass }}'
 stapp03 ansible_host='{{ stapp03.host }}' ansible_user='{{ stapp03.user }}' ansible_ssh_pass='{{ stapp03.pass }}' ansible_become=yes ansible_become_pass='{{ stapp03.pass }}'
 
+[balancer]
+stlb01 ansible_host='{{ stlb01.host }}' ansible_user='{{ stlb01.user }}' ansible_ssh_pass='{{ stlb01.pass }}' ansible_become=yes ansible_become_pass='{{ stlb01.pass }}'
+
+[database]
+stdb01 ansible_host='{{ stdb01.host }}' ansible_user='{{ stdb01.user }}' ansible_ssh_pass='{{ stdb01.pass }}' ansible_become=yes ansible_become_pass='{{ stdb01.pass }}'
+
+[storage]
+ststor01 ansible_host='{{ ststor01.host }}' ansible_user='{{ ststor01.user }}' ansible_ssh_pass='{{ ststor01.pass }}' ansible_become=yes ansible_become_pass='{{ ststor01.pass }}'
+
 [backup]
 stbkp01 ansible_host='{{ stbkp01.host }}' ansible_user='{{ stbkp01.user }}' ansible_ssh_pass='{{ stbkp01.pass }}' ansible_become=yes ansible_become_pass='{{ stbkp01.pass }}'
+
+[mail]
+stmail01 ansible_host='{{ stmail01.host }}' ansible_user='{{ stmail01.user }}' ansible_ssh_pass='{{ stmail01.pass }}' ansible_become=yes ansible_become_pass='{{ stmail01.pass }}'
 
 [test]
 testbox ansible_host='{{ testbox.host }}' ansible_user='{{ testbox.user }}' ansible_ssh_pass='{{ testbox.pass }}' ansible_become=yes ansible_become_pass='{{ testbox.pass }}'

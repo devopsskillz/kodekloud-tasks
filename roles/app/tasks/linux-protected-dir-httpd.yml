@@ -2,6 +2,9 @@
   file:
     path: "{{ protected_dir }}"
     state: directory
+    owner: root
+    group: root
+    mode: 0755
 
 - name: Set htpasswd file
   set_fact:
@@ -15,11 +18,11 @@
 
 - htpasswd:
     path: "{{ auth_file }}"
-    name: "{{ htpasswd.username }}"
-    password: "{{ htpasswd.password | default('') }}"
+    name: "{{ htpasswd_user }}"
+    password: "{{ htpasswd_pass | default('') }}"
     owner: root
     group: root
-    mode: 0640
+    mode: 0644
 
 - name: Get Apache config content
   slurp:
@@ -52,7 +55,7 @@
   template:
     src: "htaccess.j2"
     dest: "{{ protected_dir }}/.htaccess"
-    mode: 0640
+    mode: 0644
     owner: root
     group: root
 
@@ -60,7 +63,7 @@
   copy:
     src: "{{ index_file }}"
     dest: "{{ protected_dir }}"
-    mode: 0640
+    mode: 0644
     owner: root
     group: root
 
@@ -73,15 +76,15 @@
 - name: Test webservice without Basic auth
   uri:
     url: "http://{{ ansible_host }}:{{ apache_port + protected_dir | regex_replace(document_root, '') }}"
-    status_code: 403
+    status_code: 401
   delegate_to: localhost
   become: no
 
 - name: Test webservice with Basic auth
   uri:
     url: "http://{{ ansible_host }}:{{ apache_port + protected_dir | regex_replace(document_root, '') }}"
-    user: "{{ htpasswd.username }}"
-    password: "{{ htpasswd.password }}"
+    user: "{{ htpasswd_user }}"
+    password: "{{ htpasswd_pass }}"
     force_basic_auth: yes
     return_content: yes
   delegate_to: localhost

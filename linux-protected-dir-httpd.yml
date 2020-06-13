@@ -2,9 +2,8 @@
   vars:
     target_hosts: stapp01
     protected_dir: /var/www/html/devops
-    htpasswd:
-      username: jim
-      password: # set with --extra-vars "htpasswd.password=<password>"
+    htpasswd_user: jim
+    htpasswd_pass: # set with --extra-vars "htpasswd_pass=<password>"
     index_file: /tmp/index.html
     document_root: /var/www/html
   gather_facts: no

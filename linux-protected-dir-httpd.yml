@@ -4,7 +4,7 @@
     protected_dir: /var/www/html/devops
     htpasswd:
       username: jim
-      password: # set with --extra-vars "hptpasswd.password=<password>"
+      password: # set with --extra-vars "htpasswd.password=<password>"
     index_file: /tmp/index.html
     document_root: /var/www/html
   gather_facts: no

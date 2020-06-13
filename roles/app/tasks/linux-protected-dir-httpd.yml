@@ -21,6 +21,15 @@
     group: root
     mode: 0640
 
+- name: Get Apache config content
+  slurp:
+    src: /etc/httpd/conf/httpd.conf
+  register: httpd_conf
+
+- name: Get Apache port from config
+  set_fact:
+    apache_port: "{{ httpd_conf['content'] | b64decode | regex_search('(?<=\\nListen\\s)[0-9]+') }}"
+
 - name: Make sure document root is {{ document_root }}
   lineinfile:
     path: /etc/httpd/conf/httpd.conf
@@ -63,17 +72,19 @@
   
 - name: Test webservice without Basic auth
   uri:
-    url: "http://{{ ansible_host + protected_dir | regex_replace(document_root, '') }}"
-    status_code: 401
+    url: "http://{{ ansible_host }}:{{ apache_port + protected_dir | regex_replace(document_root, '') }}"
+    status_code: 403
   delegate_to: localhost
+  become: no
 
 - name: Test webservice with Basic auth
   uri:
-    url: "http://{{ ansible_host + protected_dir | regex_replace(document_root, '') }}"
+    url: "http://{{ ansible_host }}:{{ apache_port + protected_dir | regex_replace(document_root, '') }}"
     user: "{{ htpasswd.username }}"
     password: "{{ htpasswd.password }}"
     force_basic_auth: yes
     return_content: yes
   delegate_to: localhost
+  become: no
   register: resp
   failed_when: "'xFusionCorp' not in resp.content"

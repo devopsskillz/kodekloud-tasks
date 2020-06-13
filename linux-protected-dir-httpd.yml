@@ -1,0 +1,14 @@
+- hosts: "{{ target_hosts | default('all') }}"
+  vars:
+    target_hosts: stapp01
+    protected_dir: /var/www/html/devops
+    htpasswd:
+      username: jim
+      password: # set with --extra-vars "hptpasswd.password=<password>"
+    index_file: /tmp/index.html
+    document_root: /var/www/html
+  gather_facts: no
+  roles:
+  - role: app
+    become: yes
+    action: linux-protected-dir-httpd

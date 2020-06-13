@@ -1,0 +1,79 @@
+- name: Create {{ protected_dir }}
+  file:
+    path: "{{ protected_dir }}"
+    state: directory
+
+- name: Set htpasswd file
+  set_fact:
+    auth_file: /etc/httpd/.htpasswd
+
+- name: Install dependencies
+  yum:
+    name: python-passlib
+    state: present
+    update_cache: yes
+
+- htpasswd:
+    path: "{{ auth_file }}"
+    name: "{{ htpasswd.username }}"
+    password: "{{ htpasswd.password | default('') }}"
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Make sure document root is {{ document_root }}
+  lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '^DocumentRoot '
+    line: "DocumentRoot \"{{ document_root }}\""
+
+- name: Turn on .htaccess processing in {{ document_root }}
+  blockinfile:
+    path: /etc/httpd/conf/httpd.conf
+    marker: "{mark}"
+    marker_begin: "<Directory \"{{ document_root }}\">"
+    marker_end: "</Directory>"
+    block: |2
+          Options Indexes FollowSymLinks
+          AllowOverride All
+          Require all granted
+    state: present
+
+- name: Push .htaccess file
+  template:
+    src: "htaccess.j2"
+    dest: "{{ protected_dir }}/.htaccess"
+    mode: 0640
+    owner: root
+    group: root
+
+- name: Copy index file to {{ protected_dir }}
+  copy:
+    src: "{{ index_file }}"
+    dest: "{{ protected_dir }}"
+    mode: 0640
+    owner: root
+    group: root
+
+- name: Restart httpd service
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes
+  
+- name: Test webservice without Basic auth
+  uri:
+    url: "http://{{ ansible_host + protected_dir | regex_replace(document_root, '') }}"
+    status_code: 401
+  delegate_to: localhost
+
+- name: Test webservice with Basic auth
+  uri:
+    url: "http://{{ ansible_host + protected_dir | regex_replace(document_root, '') }}"
+    user: "{{ htpasswd.username }}"
+    password: "{{ htpasswd.password }}"
+    force_basic_auth: yes
+    return_content: yes
+  delegate_to: localhost
+  register: resp
+  failed_when: "'xFusionCorp' not in resp.content"

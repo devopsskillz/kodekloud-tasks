@@ -44,12 +44,12 @@ project_deploy() {
     GIT_INSTALLED=$(rpm -qa git)
     if [ -z $GIT_INSTALLED ]; then
         pgreen "Installing Git..." && \
-        yum -qq install git && \
+        yum -y -q install git && \
         pgreen "Git has been installed successfully." || \
         abort "Failed to install Git."
     fi
     project_clone
-    source $PROJECT_DIR/install.rpm.sh
+    source $PROJECT_DIR/scripts/install.rpm.sh
 }
 
 # Deploy Kodekloud tasks

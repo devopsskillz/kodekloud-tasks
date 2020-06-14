@@ -1,9 +1,9 @@
 #!/bin/bash
 set -eu -o pipefail
-source utils.sh
+ROOT_DIR="${BASH_SOURCE%/*}"
+source "$ROOT_DIR/utils.sh"
 
 ansible_deploy() {
-    ROOT_DIR="${BASH_SOURCE%/*}"
     ANSIBLE_VERSION='2.9.9'
     ANSIBLE_CONFIG="$ROOT_DIR/conf/ansible.cfg"
     ANSIBLE_INVENTORY="$ROOT_DIR/conf/hosts"
@@ -13,13 +13,13 @@ ansible_deploy() {
     EPEL_INSTALLED=$(rpm -qa epel-release)
     if [ -z $EPEL_INSTALLED ]; then
         pgreen "Installing EPEL repo..." && \
-        yum -qq install epel-release && \
+        yum -y -q install epel-release && \
         pgreen "EPEL repo has been installed successfully." || \
         abort "Failed to install EPEL repo."
     fi
     if [ -z $ANSIBLE_INSTALLED ]; then
         pgreen "Installing Ansible..." && \
-        yum -qq install ansible-$ANSIBLE_VERSION  && \
+        yum -y -q install ansible-$ANSIBLE_VERSION  && \
         pgreen "Ansible has been installed successfully." || \
         abort "Failed to install Ansible."
     fi

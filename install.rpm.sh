@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu -o pipefail
 ROOT_DIR="${BASH_SOURCE%/*}"
-source "$ROOT_DIR/utils.sh"
+source "$ROOT_DIR/scripts/utils.sh"
 
 ansible_deploy() {
     ANSIBLE_VERSION='2.9.9'

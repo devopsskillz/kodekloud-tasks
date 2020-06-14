@@ -49,7 +49,7 @@ project_deploy() {
         abort "Failed to install Git."
     fi
     project_clone
-    source $PROJECT_DIR/scripts/install.rpm.sh
+    source $PROJECT_DIR/install.rpm.sh
 }
 
 # Deploy Kodekloud tasks

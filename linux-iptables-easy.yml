@@ -1,0 +1,10 @@
+- hosts: "{{ target_hosts | default('all') }}"
+  vars:
+    target_hosts: backup
+    apache_port: 3002
+    nginx_port: 8095
+  gather_facts: no
+  roles:
+  - role: backup
+    become: yes
+    action: linux-iptables-easy

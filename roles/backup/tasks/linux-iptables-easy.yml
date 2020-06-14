@@ -1,0 +1,37 @@
+- name: Open all incoming connections to Nginx's port
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "{{ nginx_port | string }}"
+    jump: ACCEPT
+    comment: accept incoming to nginx port
+      
+- name: Block all incoming connections to Apache's port
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "{{ apache_port | string }}"
+    jump: DROP
+    comment: block incoming to apache port
+
+- name: Make rules persistent
+  command: /sbin/service iptables save
+  args:
+    warn: no
+
+- name: Start and enable httpd and nginx services
+  service:
+    name: iptables
+    state: restarted
+    enabled: yes
+
+- name: Test Nginx's and Apache's ports
+  wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ item.port }}"
+    delay: 5
+    state: "{{ item.state }}"
+  connection: local
+  loop:
+    - { port: "{{ nginx_port | int }}", state: "started" }
+    - { port: "{{ apache_port | int }}", state: "stopped" }

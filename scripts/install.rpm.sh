@@ -1,6 +1,6 @@
 #!/bin/bash
 set -eu -o pipefail
-ROOT_DIR="${BASH_SOURCE%/*}"
+ROOT_DIR=$(dirname "$0")
 source "$ROOT_DIR/utils.sh"
 
 ansible_deploy() {

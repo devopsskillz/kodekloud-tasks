@@ -1,6 +1,6 @@
 #!/bin/bash
 set -eu -o pipefail
-ROOT_DIR="${BASH_SOURCE%/*}"
+ROOT_DIR=$(dirname "$0")
 PROJECT_DIR="$ROOT_DIR/kodekloud-tasks"
 
 # Print colored text

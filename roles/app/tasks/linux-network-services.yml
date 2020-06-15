@@ -2,8 +2,8 @@
   wait_for:
     host: "{{ ansible_host }}"
     port: "{{ apache_port }}"
-    delay: 5
-    state: "{{ started }}"
+    state: started
+    timeout: 5
   connection: local
   register: port_state
   ignore_errors: true
@@ -23,14 +23,14 @@
     block:
 
     - name: Find out if some process is using port
-      shell: sudo netstat -ntlp | grep ":{{ apache_port }}" | awk '{print $7}' | awk -F/ '{print $1}' | head -1
+      shell: netstat -ntlp | grep ":{{ apache_port }}" | awk '{print $7}' | awk -F/ '{print $1}' | head -1
       register: pid
 
     - name: Stop the service using port
       block:
 
       - name: Get process name by PID
-        shell: ps -p $({{ pid.stdout }}) o comm=
+        shell: ps -p "{{ pid.stdout }}" o comm=
         register: service_name
 
       - name: Stop the service using Apache port
@@ -63,7 +63,7 @@
         destination_port: "{{ apache_port | string }}"
         jump: ACCEPT
         action: insert
-        rule_num: 1
+        rule_num: '1'
         comment: accept incoming to apache port
 
     - name: Make rules persistent
@@ -75,22 +75,15 @@
     wait_for:
       host: "{{ ansible_host }}"
       port: "{{ apache_port }}"
-      delay: 5
-      state: "{{ started }}"
-      connection: local
+      delay: 3
+      state: started
+      timeout: 5
+    connection: local
     register: port_state
 
-  - name: Complete troubleshooting on success
-    block:
-
-    - name: Notify user about issue on {{ inventory_hostname }}
-      debug:
-        msg: "Issue with Apache on {{ inventory_hostname }} has been fixed."
-      when: port_state is succeeded
-    
-    - name: Complete troubleshooting
-      meta: end_play
-
+  - name: Notify user about issue on {{ inventory_hostname }}
+    debug:
+      msg: "Issue with Apache on {{ inventory_hostname }} has been fixed."
     when: port_state is succeeded
 
   when: port_state is failed

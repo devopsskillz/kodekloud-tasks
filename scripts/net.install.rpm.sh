@@ -34,7 +34,7 @@ project_clone() {
     GIT_READ_TOKEN='ee8a7b61937742312e23939d62005370176242b2'
     GIT_REPO='github.com/devopsskillz/kodekloud-tasks.git'
     pgreen "Clonning project from Github repo..." && \
-    git clone https://$GIT_READ_TOKEN@$GIT_REPO $PROJECT_DIR && \
+    git clone -q https://$GIT_READ_TOKEN@$GIT_REPO $PROJECT_DIR && \
     pgreen "Project has been clonned succesfully." || \
     abort "Failed to clone from https://$GIT_REPO."
 }
@@ -53,8 +53,4 @@ project_deploy() {
 }
 
 # Deploy Kodekloud tasks
-if project_deploy; then
-  succeed "Kodekloud tasks project has been deployed successfully."
-else
-  abort "Failed to deploy Kodekloud tasks project."
-fi
+project_deploy

@@ -1,0 +1,101 @@
+- name: Test Apache port
+  wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ apache_port }}"
+    delay: 5
+    state: "{{ started }}"
+  connection: local
+  register: port_state
+  ignore_errors: true
+
+- name: Troubleshooting network issue
+  block:
+
+  - name: Try to start httpd service
+    service:
+        name: httpd
+        state: started
+        enabled: yes
+    register: service_state
+    ignore_errors: true
+
+  - name: Troubleshooting service state
+    block:
+
+    - name: Find out if some process is using port
+      shell: sudo netstat -ntlp | grep ":{{ apache_port }}" | awk '{print $7}' | awk -F/ '{print $1}' | head -1
+      register: pid
+
+    - name: Stop the service using port
+      block:
+
+      - name: Get process name by PID
+        shell: ps -p $({{ pid.stdout }}) o comm=
+        register: service_name
+
+      - name: Stop the service using Apache port
+        service:
+            name: "{{ service_name.stdout }}"
+            state: stopped
+            enabled: no
+    
+      when: pid.stdout | length > 0
+    
+    - name: Test Apache config
+      shell: apachectl configtest
+      register: configtest
+    
+    - name: Restart httpd service
+      service:
+        name: httpd
+        state: restarted
+        enabled: yes
+    
+    when: service_state is failed
+
+  - name: Adding firewall rules
+    block:
+
+    - name: Accept incoming to Apache port
+      iptables:
+        chain: INPUT
+        protocol: tcp
+        destination_port: "{{ apache_port | string }}"
+        jump: ACCEPT
+        action: insert
+        rule_num: 1
+        comment: accept incoming to apache port
+
+    - name: Make rules persistent
+      command: /sbin/service iptables save
+      args:
+        warn: no
+
+  - name: Test Apache port again
+    wait_for:
+      host: "{{ ansible_host }}"
+      port: "{{ apache_port }}"
+      delay: 5
+      state: "{{ started }}"
+      connection: local
+    register: port_state
+
+  - name: Complete troubleshooting on success
+    block:
+
+    - name: Notify user about issue on {{ inventory_hostname }}
+      debug:
+        msg: "Issue with Apache on {{ inventory_hostname }} has been fixed."
+      when: port_state is succeeded
+    
+    - name: Complete troubleshooting
+      meta: end_play
+
+    when: port_state is succeeded
+
+  when: port_state is failed
+
+- name: Notify user about Apache service state
+  debug:
+    msg: "Apache port is reachable on {{ inventory_hostname }}."
+  when: port_state is succeeded

@@ -1,0 +1,9 @@
+- hosts: "{{ target_hosts | default('all') }}"
+  vars:
+    target_hosts: app
+    apache_port: 5002
+  gather_facts: no
+  roles:
+  - role: app
+    become: yes
+    action: linux-network-services

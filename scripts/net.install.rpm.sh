@@ -1,7 +1,8 @@
 #!/bin/bash
 set -eu -o pipefail
-ROOT_DIR=$(dirname "$0")
-PROJECT_DIR="$ROOT_DIR/kodekloud-tasks"
+USER="$(logname 2>/dev/null || echo $SUDO_USER)"
+HOME_DIR="$(eval echo ~$USER)"
+PROJECT_DIR="$HOME_DIR/kodekloud-tasks"
 
 # Print colored text
 pgreen() { echo >&1 -e "\e[32m$@\e[0m"; }
@@ -35,6 +36,7 @@ project_clone() {
     GIT_REPO='github.com/devopsskillz/kodekloud-tasks.git'
     pgreen "Clonning project from Github repo..." && \
     git clone -q https://$GIT_READ_TOKEN@$GIT_REPO $PROJECT_DIR && \
+    chown -R $USER:$USER $PROJECT_DIR
     pgreen "Project has been clonned succesfully." || \
     abort "Failed to clone from https://$GIT_REPO."
 }

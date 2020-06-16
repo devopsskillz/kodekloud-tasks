@@ -1,0 +1,2 @@
+minute: "*/5"
+job: "echo hello > /tmp/cron_text"

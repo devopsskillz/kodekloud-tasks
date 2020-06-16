@@ -1,9 +1,6 @@
-- hosts: "{{ target_hosts | default('all') }}"
-  vars:
-    target_hosts: backup
-    apache_port: 6000
-    nginx_port: 8092
-    index_file: /home/index.html
+- hosts: backup
+  vars_files:
+    - vars/linux-nginx-config.yml
   gather_facts: no
   roles:
   - role: backup

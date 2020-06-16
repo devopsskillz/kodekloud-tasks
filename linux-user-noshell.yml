@@ -1,7 +1,6 @@
-- hosts: "{{ target_hosts | default('all') }}"
-  vars:
-    target_hosts: stapp03
-    username: anita
+- hosts: "{{ target_host | default('app') }}"
+  vars_files:
+    - vars/linux-user-noshell.yml
   gather_facts: no
   roles:
   - role: app

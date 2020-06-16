@@ -1,0 +1,3 @@
+repo_name: epel_local
+repo_mount: /packages/downloaded_rpms/
+package: wget

@@ -2,4 +2,3 @@ protected_url: http://<website-url>:<apache_port>/protected
 pam_user: siva
 pam_pass: # set with --extra-vars "pam_pass=<password>"
 document_root: /var/www/html
-lbr_port: 80

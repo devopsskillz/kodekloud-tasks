@@ -1,0 +1,14 @@
+- hosts: app
+  gather_facts: no
+  roles:
+  - role: app
+    become: yes
+    action: linux-pam
+
+- hosts: balancer
+  gather_facts: no
+  roles:
+  - role: balancer
+    become: yes
+    action: linux-pam
+  

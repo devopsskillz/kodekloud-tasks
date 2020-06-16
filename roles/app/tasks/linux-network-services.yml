@@ -81,11 +81,6 @@
     connection: local
     register: port_state
 
-  - name: Notify user about issue on {{ inventory_hostname }}
-    debug:
-      msg: "Issue with Apache on {{ inventory_hostname }} has been fixed."
-    when: port_state is succeeded
-
   when: port_state is failed
 
 - name: Notify user about Apache service state

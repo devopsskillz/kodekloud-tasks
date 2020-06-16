@@ -19,18 +19,19 @@
   args:
     warn: no
 
-- name: Start and enable httpd and nginx services
+- name: Ensure if iptables started and enabled
   service:
     name: iptables
-    state: restarted
+    state: started
     enabled: yes
 
 - name: Test Nginx's and Apache's ports
   wait_for:
     host: "{{ ansible_host }}"
     port: "{{ item.port }}"
-    delay: 5
+    delay: 3
     state: "{{ item.state }}"
+    timeout: 5
   connection: local
   loop:
     - { port: "{{ nginx_port | int }}", state: "started" }

@@ -1,0 +1,22 @@
+- name: Render protected url
+  set_fact:
+    test_url: "{{ protected_url | regex_replace('<website-url>.*<apache_port>', ansible_host + '.*' + lbr_port) }}"
+
+- name: Test webservice without Basic auth
+  uri:
+    url: "{{ test_url }}"
+    status_code: 401
+  delegate_to: localhost
+  become: no
+
+- name: Test webservice without Basic auth
+  uri:
+    url: "{{ test_url }}"
+    user: "{{ pam_user }}"
+    password: "{{ pam_pass }}"
+    force_basic_auth: yes
+    return_content: yes
+  delegate_to: localhost
+  become: no
+  register: resp
+  failed_when: "'xFusionCorp' not in resp.content"

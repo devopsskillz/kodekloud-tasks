@@ -1,6 +1,6 @@
 - name: Render protected url
   set_fact:
-    test_url: "{{ protected_url | regex_replace('<website-url>:<apache_port>', ansible_host + ':' + lbr_port) }}"
+    test_url: "{{ protected_url | regex_replace('<website-url>:<apache_port>', ansible_host + ':8081') }}"
 
 - name: Test webservice without Basic auth
   uri:
@@ -9,7 +9,7 @@
   delegate_to: localhost
   become: no
 
-- name: Test webservice without Basic auth
+- name: Test webservice with Basic auth
   uri:
     url: "{{ test_url }}"
     user: "{{ pam_user }}"

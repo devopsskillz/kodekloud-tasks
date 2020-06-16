@@ -50,7 +50,7 @@
   delegate_to: localhost
   become: no
 
-- name: Test webservice without Basic auth
+- name: Test webservice with Basic auth
   uri:
     url: "{{ test_url }}"
     user: "{{ pam_user }}"

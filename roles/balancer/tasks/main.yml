@@ -1,2 +1,1 @@
-- include_vars: "{{ playbook_dir }}/vars/{{ action }}.yml"
 - include_tasks: "{{ action }}.yml"

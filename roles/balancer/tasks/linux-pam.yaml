@@ -1,6 +1,6 @@
 - name: Render protected url
   set_fact:
-    test_url: "{{ protected_url | regex_replace('<website-url>.*<apache_port>', ansible_host + '.*' + lbr_port) }}"
+    test_url: "{{ protected_url | regex_replace('<website-url>:<apache_port>', ansible_host + ':' + lbr_port) }}"
 
 - name: Test webservice without Basic auth
   uri:
@@ -19,4 +19,4 @@
   delegate_to: localhost
   become: no
   register: resp
-  failed_when: "'xFusionCorp' not in resp.content"
+  failed_when: "'KodeKloud' not in resp.content"

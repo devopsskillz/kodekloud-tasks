@@ -14,7 +14,7 @@
   blockinfile:
     path: /etc/httpd/conf.d/authnz_external.conf
     marker: "{mark}"
-    marker_begin: "<Directory \"{{ document_root + protected_url | urlsplit('path') }}\">"
+    marker_begin: "<Directory \"{{ document_root }}/{{ protected_url | basename }}\">"
     marker_end: "</Directory>"
     block: |2
           AuthType Basic
@@ -23,6 +23,12 @@
           AuthExternal pwauth
           require valid-user
     state: present 
+
+- name: Restart httpd service
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes
 
 - name: Get Apache config content
   slurp:
@@ -35,7 +41,7 @@
 
 - name: Render protected url
   set_fact:
-    test_url: "{{ protected_url | regex_replace('<website-url>.*<apache_port>', ansible_host + '.*' + apache_port) }}"
+    test_url: "{{ protected_url | regex_replace('<website-url>:<apache_port>', ansible_host + ':' + apache_port) }}"
 
 - name: Test webservice without Basic auth
   uri:
@@ -54,4 +60,4 @@
   delegate_to: localhost
   become: no
   register: resp
-  failed_when: "'xFusionCorp' not in resp.content"
+  failed_when: "'KodeKloud' not in resp.content"

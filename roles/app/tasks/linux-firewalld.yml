@@ -50,15 +50,6 @@
     immediate: yes
     state: enabled
 
-- name: Test Nginx port
-  wait_for:
-    host: "{{ nginx_port }}"
-    port: "{{ apache_port }}"
-    delay: 3
-    state: started
-    timeout: 5
-  connection: local
-
 - name: Test Nginx's and Apache's ports
   wait_for:
     host: "{{ ansible_host }}"
@@ -71,11 +62,11 @@
     - { port: "{{ nginx_port | int }}", state: "started" }
     - { port: "{{ apache_port | int }}", state: "stopped" }
 
+
 - name: Test Apache port from LB host
-  wait_for:
-    host: "{{ ansible_host }}"
-    port: "{{ apache_port | int }}"
-    delay: 3
-    state: started
-    timeout: 5
+  raw: "echo 'exit' | telnet {{ ansible_host }} {{ apache_port }}"
   delegate_to: "{{ groups['balancer'] | first }}"
+  register: output
+
+- debug:
+    msg: output.stdout

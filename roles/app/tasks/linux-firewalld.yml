@@ -48,27 +48,34 @@
     zone: public
     permanent: yes
     immediate: yes
-    state: disabled
+    state: enabled
 
-- name: Test Nginx incoming connection
-  uri:
-    url: "http://{{ ansible_host }}:{{ nginx_port }}/"
-    return_content: yes
-  delegate_to: localhost
-  become: no
+- name: Test Nginx port
+  wait_for:
+    host: "{{ nginx_port }}"
+    port: "{{ apache_port }}"
+    delay: 3
+    state: started
+    timeout: 5
+  connection: local
 
-- name: Test Apache incoming connection
-  uri:
-    url: "http://{{ ansible_host }}:{{ apache_port }}/"
-    return_content: yes
-  delegate_to: localhost
-  become: no
-  register: result
-  failed_when: result is succeeded
+- name: Test Nginx's and Apache's ports
+  wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ item.port }}"
+    delay: 3
+    state: "{{ item.state }}"
+    timeout: 5
+  connection: local
+  loop:
+    - { port: "{{ nginx_port | int }}", state: "started" }
+    - { port: "{{ apache_port | int }}", state: "stopped" }
 
-- name: Test Apache incoming connection from LB host
-  uri:
-    url: "http://{{ ansible_host }}:{{ apache_port }}/"
-    return_content: yes
+- name: Test Apache port from LB host
+  wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ apache_port | int }}"
+    delay: 3
+    state: started
+    timeout: 5
   delegate_to: "{{ groups['balancer'] | first }}"
-  become: no

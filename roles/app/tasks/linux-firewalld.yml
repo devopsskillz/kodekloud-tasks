@@ -1,0 +1,68 @@
+- name: Install necessary packages
+  yum:
+    name: firewalld
+    state: present
+    update_cache: yes
+
+- name: Start and enable necessary services
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop: ['firewalld', 'httpd', 'nginx']
+
+- name: Get Apache and Nginx ports
+  shell: netstat -ntlp | grep '{{ item }}' | awk '{print $4}' | sed -e 's/.*://' | head -1
+  loop:
+    - nginx
+    - httpd
+  register: port
+
+# setting port vars to stdouts from above task
+- name: Set Apache and Nginx ports vars
+  set_fact:
+    "{{ item.0 }}_port": "{{ item.1 }}"
+  loop: "{{ ['nginx', 'apache'] | zip(port.results | map(attribute='stdout') | list) | list }}"
+
+- name: Allow incoming on Nginx port
+  firewalld:
+    port: "{{ nginx_port }}/tcp"
+    zone: public
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Get LB host IP address
+  set_fact:
+    lb_host: "{{ groups['balancer'] | map('extract', hostvars, ['ansible_host']) | first }}"
+
+- name: Allow incoming from LB host on Apache port
+  firewalld:
+    rich_rule: "rule family=ipv4 source address={{ lb_host }} port protocol=tcp port={{ apache_port }} accept"
+    zone: public
+    permanent: yes
+    immediate: yes
+    state: disabled
+
+- name: Test Nginx incoming connection
+  uri:
+    url: "http://{{ ansible_host }}:{{ nginx_port }}/"
+    return_content: yes
+  delegate_to: localhost
+  become: no
+
+- name: Test Apache incoming connection
+  uri:
+    url: "http://{{ ansible_host }}:{{ apache_port }}/"
+    return_content: yes
+  delegate_to: localhost
+  become: no
+  register: result
+  failed_when: result is succeeded
+
+- name: Test Apache incoming connection from LB host
+  uri:
+    url: "http://{{ ansible_host }}:{{ apache_port }}/"
+    return_content: yes
+  delegate_to: "{{ groups['balancer'] | first }}"
+  become: no

@@ -4,6 +4,12 @@
     state: present
     update_cache: yes
 
+- name: Restart necessary services
+  service:
+    name: "{{ item }}"
+    state: restarted
+  loop: ['dbus', 'systemd-logind']
+
 - name: Start and enable necessary services
   service:
     name: "{{ item }}"
@@ -12,7 +18,7 @@
   loop: ['firewalld', 'httpd', 'nginx']
 
 - name: Get Apache and Nginx ports
-  shell: netstat -ntlp | grep '{{ item }}' | awk '{print $4}' | sed -e 's/.*://' | head -1
+  shell: ss -ntlp | grep '{{ item }}' | awk '{print $4}' | sed -e 's/.*://' | head -1
   loop:
     - nginx
     - httpd

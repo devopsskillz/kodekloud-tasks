@@ -1,0 +1,5 @@
+- name: Install Linux package
+  yum:
+    name: "{{ package_name }}"
+    state: present
+    update_cache: yes

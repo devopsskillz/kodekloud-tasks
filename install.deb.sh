@@ -4,7 +4,6 @@ ROOT_DIR="${BASH_SOURCE%/*}"
 source "$ROOT_DIR/scripts/utils.sh"
 
 ansible_deploy() {
-    ANSIBLE_VERSION='2.9.9'
     ANSIBLE_CONFIG="$ROOT_DIR/conf/ansible.cfg"
     ANSIBLE_INVENTORY="$ROOT_DIR/conf/hosts"
     ANSIBLE_VAULT_PASS='k0d3kl0ud'
@@ -15,7 +14,7 @@ ansible_deploy() {
         apt-get update && \
         apt-get --force-yes -qq install software-properties-common && \
         apt-add-repository -y --update ppa:ansible/ansible && \
-        apt-get --force-yes -qq install ansible="$ANSIBLE_VERSION*" && \
+        apt-get --force-yes -qq install ansible && \
         pgreen "Ansible has been installed successfully." || \
         abort "Failed to install Ansible."
     fi

@@ -1,4 +1,4 @@
-- name: Create a linux user with expiry date
+- name: Create a Linux user with expiry date
   user:
     name: "{{ username | lower }}"
     expires: "{{ (expiry_date | to_datetime('%Y-%m-%d')).strftime('%s') }}"

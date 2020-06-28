@@ -19,9 +19,7 @@
 
 - name: Get Apache and Nginx ports
   shell: ss -ntlp | grep '{{ item }}' | awk '{print $4}' | sed -e 's/.*://' | head -1
-  loop:
-    - nginx
-    - httpd
+  loop: ['nginx', 'httpd']
   register: port
 
 # setting port vars to stdouts from above task
@@ -38,9 +36,10 @@
     immediate: yes
     state: enabled
 
-- name: Get LB host IP address
+- name: Get LB credentials and host address
   set_fact:
-    lb_host: "{{ groups['balancer'] | map('extract', hostvars, ['ansible_host']) | first }}"
+    "{{ item.0 }}": "{{ groups['balancer'] | map('extract', hostvars, [item.1]) | first }}"
+  loop: "{{ ['lb_user', 'lb_pass', 'lb_host'] | zip(['ansible_user', 'ansible_ssh_pass', 'ansible_host']) | list }}"
 
 - name: Allow incoming from LB host on Apache port
   firewalld:
@@ -57,7 +56,9 @@
     delay: 3
     state: "{{ item.state }}"
     timeout: 5
-  delegate_to: localhost
+    vars:
+      ansible_connection: local
+      ansible_become: no      
   loop:
     - { port: "{{ nginx_port | int }}", state: "started" }
     - { port: "{{ apache_port | int }}", state: "stopped" }
@@ -65,8 +66,10 @@
 # testing port from host with missing sudo
 - name: Test Apache port from LB host
   shell: >
-    sshpass -p '{{ stlb01.pass }}' ssh -o StrictHostKeyChecking=no '{{ stlb01.user + '@' + lb_host }}'
+    sshpass -p '{{ lb_pass }}' ssh -o StrictHostKeyChecking=no '{{ lb_user + '@' + lb_host }}'
     'echo exit | telnet {{ ansible_host }} {{ apache_port }}'
-  delegate_to: localhost
+  vars:
+    ansible_connection: local
+    ansible_become: no  
   register: result
   failed_when: '"Connected to" not in result.stdout'

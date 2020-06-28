@@ -2,4 +2,4 @@
 set -eu -o pipefail
 
 zip -r {{ destination_dir }}/{{ zip_name }} {{ zip_source }}
-scp {{ destination_dir }}/{{ zip_name }} {{ backup_user }}@{{ backup_host }}:{{ destination_dir }}/
+scp -o StrictHostKeyChecking=no {{ destination_dir }}/{{ zip_name }} {{ backup_user }}@{{ backup_host }}:{{ destination_dir }}/

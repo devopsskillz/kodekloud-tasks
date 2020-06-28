@@ -57,16 +57,16 @@
     delay: 3
     state: "{{ item.state }}"
     timeout: 5
-  connection: local
+  delegate_to: localhost
   loop:
     - { port: "{{ nginx_port | int }}", state: "started" }
     - { port: "{{ apache_port | int }}", state: "stopped" }
 
-
+# testing port from host with missing sudo
 - name: Test Apache port from LB host
-  raw: "echo 'exit' | telnet {{ ansible_host }} {{ apache_port }}"
-  delegate_to: "{{ groups['balancer'] | first }}"
-  register: output
-
-- debug:
-    msg: output.stdout
+  shell: >
+    sshpass -p '{{ stlb01.pass }}' ssh -o StrictHostKeyChecking=no '{{ stlb01.user + '@' + lb_host }}'
+    'echo exit | telnet {{ ansible_host }} {{ apache_port }}'
+  delegate_to: localhost
+  register: result
+  failed_when: '"Connected to" not in result.stdout'

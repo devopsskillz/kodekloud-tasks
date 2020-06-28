@@ -1,5 +1,5 @@
 [jump_host]
-localhost ansible_connection=local
+localhost ansible_connection=local ansible_user='{{ jump_host.user }}' ansible_become=yes ansible_become_pass='{{ jump_host.pass }}'
 
 [app]
 stapp01 ansible_host='{{ stapp01.host }}' ansible_user='{{ stapp01.user }}' ansible_ssh_pass='{{ stapp01.pass }}' ansible_become=yes ansible_become_pass='{{ stapp01.pass }}'

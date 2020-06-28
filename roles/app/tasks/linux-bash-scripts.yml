@@ -2,30 +2,32 @@
   file:
     path: "{{ '/home/' + ansible_user + '/.ssh' }}"
     owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     state: directory
 
 - name: Generate OpenSSH key pair
   openssh_keypair:
     path: "{{ '/home/' + ansible_user + '/.ssh/id_rsa' }}"
     owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     force: yes
 
 - name: Get public key content
-  set_fact:
-    public_key: "{{ lookup('file', '/home/' + ansible_user + '/.ssh/id_rsa.pub') }}"
+  slurp:
+    src: "{{ '/home/' + ansible_user + '/.ssh/id_rsa.pub' }}"
+  register: public_key
 
 - name: Get Backup Server user and host address
   set_fact:
-    "{{ item.0 }}": "{{ groups['backup'] | map('extract', hostvars, [{{ item.1 }}]) | first }}"
+    "{{ item.0 }}": "{{ groups['backup'] | map('extract', hostvars, [item.1]) | first }}"
   loop: "{{ ['backup_user', 'backup_host'] | zip(['ansible_user', 'ansible_host']) | list }}"
 
 - name: Add authorized key on Backup Server
   authorized_key:
     user: "{{ backup_user }}"
     state: present
-    key: "{{ public_key }}"
-  delegate_to: "{{ backup_host }}"
-  delegate_facts: yes
+    key: "{{ public_key['content'] | b64decode }}"
+  delegate_to: "{{ groups['backup'] | first }}"
 
 - name: Format destination dir path
   set_fact:
@@ -45,10 +47,12 @@
 
 - name: Execute backup script
   command: sh -c "{{ script_path }}"
-  become: no
+  vars:
+    ansible_become: no
 
 - name: Check if backup was copied on Backup Server
-  stat: "{{ destination_dir }}/{{ zip_name }}"
+  stat:
+    path: "{{ destination_dir }}/{{ zip_name }}"
   register: zip
   failed_when: zip.stat.islnk is not defined
-  delegate_to: "{{ backup_host }}"
+  delegate_to: "{{ groups['backup'] | first }}"

@@ -4,7 +4,9 @@
     port: "{{ apache_port }}"
     state: started
     timeout: 5
-  connection: local
+  vars:
+    ansible_connection: local
+    ansible_become: no 
   register: port_state
   ignore_errors: true
 
@@ -78,7 +80,9 @@
       delay: 3
       state: started
       timeout: 5
-    connection: local
+    vars:
+      ansible_connection: local
+      ansible_become: no 
     register: port_state
 
   when: port_state is failed

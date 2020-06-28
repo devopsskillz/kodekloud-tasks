@@ -77,8 +77,9 @@
   uri:
     url: "http://{{ ansible_host }}:{{ apache_port + protected_dir | regex_replace(document_root, '') }}"
     status_code: 401
-  delegate_to: localhost
-  become: no
+  vars:
+    ansible_connection: local
+    ansible_become: no
 
 - name: Test webservice with Basic auth
   uri:
@@ -87,7 +88,8 @@
     password: "{{ htpasswd_pass }}"
     force_basic_auth: yes
     return_content: yes
-  delegate_to: localhost
-  become: no
+  vars:
+    ansible_connection: local
+    ansible_become: no
   register: resp
   failed_when: "'xFusionCorp' not in resp.content"

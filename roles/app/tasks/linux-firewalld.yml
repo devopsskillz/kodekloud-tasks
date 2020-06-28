@@ -36,6 +36,7 @@
     immediate: yes
     state: enabled
 
+# get LB creds and IP from the first host of 'balancer' group
 - name: Get LB credentials and host address
   set_fact:
     "{{ item.0 }}": "{{ groups['balancer'] | map('extract', hostvars, [item.1]) | first }}"
@@ -56,9 +57,9 @@
     delay: 3
     state: "{{ item.state }}"
     timeout: 5
-    vars:
-      ansible_connection: local
-      ansible_become: no      
+  vars:
+    ansible_connection: local
+    ansible_become: no      
   loop:
     - { port: "{{ nginx_port | int }}", state: "started" }
     - { port: "{{ apache_port | int }}", state: "stopped" }

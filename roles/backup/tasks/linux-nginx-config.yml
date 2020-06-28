@@ -44,8 +44,9 @@
   uri:
     url: "http://{{ ansible_host }}:{{ item }}"
     return_content: yes
-  delegate_to: localhost
-  become: no
+  vars:
+    ansible_connection: local
+    ansible_become: no
   register: resp
   failed_when: "'xFusionCorp' not in resp.content"
   loop:

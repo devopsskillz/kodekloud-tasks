@@ -32,7 +32,9 @@
     delay: 3
     state: "{{ item.state }}"
     timeout: 5
-  connection: local
+  vars:
+    ansible_connection: local
+    ansible_become: no 
   loop:
     - { port: "{{ nginx_port | int }}", state: "started" }
     - { port: "{{ apache_port | int }}", state: "stopped" }

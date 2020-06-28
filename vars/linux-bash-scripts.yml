@@ -1,0 +1,6 @@
+target_host: stapp03
+script_name: news_backup.sh
+script_dir: /scripts
+zip_name: xfusioncorp_news.zip
+zip_source: /var/www/html/news
+destination_dir: /backup/

@@ -1,0 +1,8 @@
+- hosts: "{{ target_host | default('app') }}"
+  vars_files:
+    - vars/linux-bash-scripts.yml
+  gather_facts: no
+  roles:
+  - role: app
+    become: yes
+    action: linux-bash-scripts

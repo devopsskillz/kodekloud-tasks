@@ -1,0 +1,54 @@
+- name: Ensure ~/.ssh dir exists
+  file:
+    path: "{{ '/home/' + ansible_user + '/.ssh' }}"
+    owner: "{{ ansible_user }}"
+    state: directory
+
+- name: Generate OpenSSH key pair
+  openssh_keypair:
+    path: "{{ '/home/' + ansible_user + '/.ssh/id_rsa' }}"
+    owner: "{{ ansible_user }}"
+    force: yes
+
+- name: Get public key content
+  set_fact:
+    public_key: "{{ lookup('file', '/home/' + ansible_user + '/.ssh/id_rsa.pub') }}"
+
+- name: Get Backup Server user and host address
+  set_fact:
+    "{{ item.0 }}": "{{ groups['backup'] | map('extract', hostvars, [{{ item.1 }}]) | first }}"
+  loop: "{{ ['backup_user', 'backup_host'] | zip(['ansible_user', 'ansible_host']) | list }}"
+
+- name: Add authorized key on Backup Server
+  authorized_key:
+    user: "{{ backup_user }}"
+    state: present
+    key: "{{ public_key }}"
+  delegate_to: "{{ backup_host }}"
+  delegate_facts: yes
+
+- name: Format destination dir path
+  set_fact:
+    destination_dir: "{{ destination_dir | regex_replace('/$', '') }}"
+
+- name: Set script path
+  set_fact:
+    script_path: "{{ script_dir | regex_replace('/$', '') }}/{{ script_name }}"
+
+- name: Generate backup script
+  template:
+    src: backup.j2
+    dest: "{{ script_path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+
+- name: Execute backup script
+  command: sh -c "{{ script_path }}"
+  become: no
+
+- name: Check if backup was copied on Backup Server
+  stat: "{{ destination_dir }}/{{ zip_name }}"
+  register: zip
+  failed_when: zip.stat.islnk is not defined
+  delegate_to: "{{ backup_host }}"

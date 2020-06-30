@@ -1,0 +1,11 @@
+- name: Create a Linux Group
+  group:
+    name: "{{ group_name }}"
+    state: present
+
+- name: Add a Linux User to the group
+  user:
+    name: "{{ username }}"
+    groups: "{{ group_name }}"
+    append: yes
+    state: present

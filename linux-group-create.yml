@@ -1,0 +1,8 @@
+- hosts: app
+  vars_files:
+    - vars/linux-group-create.yml
+  gather_facts: no
+  roles:
+  - role: app
+    become: yes
+    action: linux-group-create

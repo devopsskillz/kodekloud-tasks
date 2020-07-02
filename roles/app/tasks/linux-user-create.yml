@@ -1,0 +1,7 @@
+- name: Create a user
+  user:
+    name: "{{ username }}"
+    uid: "{{ uid }}"
+    create_home: yes
+    home: "{{ home_dir }}"
+    state: present

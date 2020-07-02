@@ -1,0 +1,4 @@
+target_host: stapp02
+username: john
+uid: 1124
+home_dir: /var/www/john

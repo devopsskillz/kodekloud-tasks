@@ -1,0 +1,2 @@
+- name: Set default target to graphical
+  shell: systemctl set-default {{ target }}

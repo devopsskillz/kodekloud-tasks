@@ -1,0 +1,8 @@
+- hosts: app
+  vars_files:
+    - vars/linux-run-levels.yml
+  gather_facts: no
+  roles:
+  - role: app
+    become: yes
+    action: linux-run-levels

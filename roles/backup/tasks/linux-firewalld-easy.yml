@@ -1,0 +1,19 @@
+- name: Allow incoming on Web UI port
+  firewalld:
+    port: "{{ service_port }}/tcp"
+    zone: public
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Test Web UI port
+  wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ service_port }}"
+    delay: 3
+    state: started
+    timeout: 5
+    vars:
+        ansible_connection: local
+        ansible_become: no      
+

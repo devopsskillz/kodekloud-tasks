@@ -1,0 +1,8 @@
+- hosts: backup
+  vars_files:
+    - vars/linux-firewalld-easy.yml
+  gather_facts: no
+  roles:
+  - role: backup
+    become: yes
+    action: linux-firewalld-easy

@@ -1,0 +1,8 @@
+- hosts: "{{ target_host | default('app') }}"
+  vars_files:
+    - vars/linux-user-nohome.yml
+  gather_facts: no
+  roles:
+  - role: app
+    become: yes
+    action: linux-user-nohome

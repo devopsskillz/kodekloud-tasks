@@ -1,0 +1,6 @@
+- name: Create a user without home
+  user:
+    name: "{{ username }}"
+    create_home: no
+    system: yes
+    state: present

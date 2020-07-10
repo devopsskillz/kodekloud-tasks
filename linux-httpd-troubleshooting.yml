@@ -1,0 +1,10 @@
+- hosts: app
+  vars_files:
+    - vars/linux-httpd-troubleshooting.yml
+  gather_facts: no
+  roles:
+  - role: app
+    become: yes
+    action: linux-httpd-troubleshooting
+
+  

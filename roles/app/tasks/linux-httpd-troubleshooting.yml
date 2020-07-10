@@ -1,0 +1,53 @@
+- name: Test Apache URL
+  uri:
+    url: "http://{{ ansible_host }}:{{ apache_port }}/"
+    return_content: yes
+  vars:
+    ansible_connection: local
+    ansible_become: no
+  register: resp
+  failed_when: "'xFusionCorp' not in resp.content"
+
+- name: Apache Troubleshooting
+  block:
+
+  - name: Ensure Apache port is {{ apache_port }}
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^(?!#).*Listen.*'
+      line: "Listen {{ apache_port }}"
+
+  - name: Ensure server root is /etc/httpd
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^(?!#).*ServerRoot.*'
+      line: "ServerRoot \"/etc/httpd\""
+
+  - name: Ensure document root is {{ document_root }}
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^(?!#).*DocumentRoot.*'
+      line: "DocumentRoot \"{{ document_root }}\""
+
+  - name: Test Apache config
+    shell: apachectl configtest
+    register: configtest
+    failed_when: "'Syntax OK' not in configtest.stdout"
+
+  when: resp is failed
+ 
+- name: Restart httpd service
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes
+    
+- name: Test Apache URL again
+  uri:
+    url: "http://{{ ansible_host }}:{{ apache_port }}/"
+    return_content: yes
+  vars:
+    ansible_connection: local
+    ansible_become: no
+  register: resp
+  failed_when: "'xFusionCorp' not in resp.content"

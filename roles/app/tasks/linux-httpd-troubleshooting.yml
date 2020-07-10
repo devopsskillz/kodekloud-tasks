@@ -15,19 +15,19 @@
   - name: Ensure Apache port is {{ apache_port }}
     lineinfile:
       path: /etc/httpd/conf/httpd.conf
-      regexp: '^(?!#).*Listen '
+      regexp: '^(?!\s*#).*Listen '
       line: "Listen {{ apache_port }}"
 
   - name: Ensure server root is /etc/httpd
     lineinfile:
       path: /etc/httpd/conf/httpd.conf
-      regexp: '^(?!#).*ServerRoot '
+      regexp: '^(?!\s*#).*ServerRoot '
       line: "ServerRoot \"/etc/httpd\""
 
   - name: Ensure document root is {{ document_root }}
     lineinfile:
       path: /etc/httpd/conf/httpd.conf
-      regexp: '^(?!#).*DocumentRoot '
+      regexp: '^(?!\s*#).*DocumentRoot'
       line: "DocumentRoot \"{{ document_root }}\""
 
   - name: Test Apache config
@@ -35,14 +35,14 @@
     register: configtest
     failed_when: "'Syntax OK' not in configtest.stdout + configtest.stderr"
 
+  - name: Restart httpd service
+    service:
+      name: httpd
+      state: restarted
+      enabled: yes
+
   when: resp is failed
- 
-- name: Restart httpd service
-  service:
-    name: httpd
-    state: restarted
-    enabled: yes
-    
+
 - name: Test Apache URL again
   uri:
     url: "http://{{ ansible_host }}:{{ apache_port }}/"

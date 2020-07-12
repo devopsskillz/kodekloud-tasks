@@ -1,0 +1,29 @@
+- name: Ensure nfs-utils is installed
+  yum:
+    name: nfs-utils
+    state: present
+    update_cache: yes
+
+- name: Ensure rpcbind is started and enabled
+  service:
+    name: rpcbind
+    state: started
+    enabled: yes
+
+- name: Ensure {{ mount_point }} exists
+  file:
+    path: "{{ mount_point }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Mount NFS share
+  mount:
+    fstype: nfs
+    opts: defaults
+    dump: '0'
+    passno: '0'
+    state: mounted
+    src: "{{ groups['storage'] | map('extract', hostvars, ['ansible_host']) | first }}:{{ nfs_share }}"
+    path: "{{ mount_point }}"

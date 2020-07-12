@@ -1,0 +1,28 @@
+- name: Ensure nfs-utils is installed
+  yum:
+    name: nfs-utils
+    state: present
+    update_cache: yes
+
+- name: Ensure {{ nfs_share }} exists
+  file:
+    path: "{{ nfs_share }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Push /etc/exports configuration
+  template:
+    src: "exports.j2"
+    dest: /etc/exports
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Restart NFS server
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+  loop: ['rpcbind', 'nfs-server']

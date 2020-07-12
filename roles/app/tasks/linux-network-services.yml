@@ -46,6 +46,7 @@
     - name: Test Apache config
       shell: apachectl configtest
       register: configtest
+      failed_when: "'Syntax OK' not in configtest.stdout + configtest.stderr"
     
     - name: Restart httpd service
       service:

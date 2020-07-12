@@ -1,0 +1,2 @@
+{% set access_options = '(rw,sync,no_subtree_check,no_root_squash,fsid=0)' %}
+{{ nfs_share | regex_replace('/$', '') }}/ {{ groups['app'] | map('extract', hostvars, ['ansible_host']) | map('regex_replace', '(.*)', '\\1' + access_options) | join(' ') }}

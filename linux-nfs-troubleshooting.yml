@@ -1,0 +1,17 @@
+- hosts: storage
+  vars_files:
+    - vars/linux-nfs-troubleshooting.yml
+  gather_facts: no
+  roles:
+  - role: storage
+    become: yes
+    action: linux-nfs-troubleshooting
+
+- hosts: app
+  vars_files:
+    - vars/linux-nfs-troubleshooting.yml
+  gather_facts: no
+  roles:
+  - role: app
+    become: yes
+    action: linux-nfs-troubleshooting

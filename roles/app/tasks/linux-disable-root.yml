@@ -1,0 +1,7 @@
+- name: Disable Root Login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    insertafter: '^[#\s]*LoginGraceTime'
+    regexp: '^[#\s]*PermitRootLogin'
+    line: "PermitRootLogin no"
+  notify: Restart sshd

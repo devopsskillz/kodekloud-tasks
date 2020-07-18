@@ -1,0 +1,8 @@
+- hosts: "{{ target_host | default('app') }}"
+  vars_files:
+    - vars/linux-remote-copy.yml
+  gather_facts: no
+  roles:
+  - role: app
+    become: yes
+    action: linux-remote-copy

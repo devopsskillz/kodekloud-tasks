@@ -1,6 +1,4 @@
 - hosts: app
-  vars_files:
-    - vars/linux-firewalld.yml
   gather_facts: no
   roles:
   - role: app

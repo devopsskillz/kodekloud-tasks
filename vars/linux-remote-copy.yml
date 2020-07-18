@@ -1,0 +1,3 @@
+target_host: stapp01
+source_file: /tmp/nautilus.txt.gpg
+destination_dir: /home/app

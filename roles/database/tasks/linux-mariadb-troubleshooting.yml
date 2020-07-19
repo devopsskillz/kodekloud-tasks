@@ -1,0 +1,29 @@
+- name: Get MariaDb config content
+  slurp:
+    src: /etc/my.cnf
+  register: mariadb_conf
+
+- name: Get data directory from config
+  set_fact:
+    data_dir: "{{ mariadb_conf['content'] | b64decode | regex_search('(?<=\\ndatadir=)[\\/a-z]+') }}"
+
+- name: Get log directory from config
+  set_fact:
+    log_dir: "{{ mariadb_conf['content'] | b64decode | regex_search('(?<=\\nlog-error=)[\\/a-z]+(?=\\/)') }}"
+
+- name: Get pid file directory from config
+  set_fact:
+    pid_dir: "{{ mariadb_conf['content'] | b64decode | regex_search('(?<=\\npid-file=)[\\/a-z]+(?=\\/)') }}"
+
+- name: Ensure permissions is right for directories
+  file:
+    path: "{{ item.path | regex_replace('/$', '') }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ data_dir }}", mode: '0755' }
+    - { path: "{{ log_dir }}", mode: '0750' }
+    - { path: "{{ pid_dir }}", mode: '0755' }
+  notify: Restart mariadb

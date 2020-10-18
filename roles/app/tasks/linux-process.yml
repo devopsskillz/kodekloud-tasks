@@ -1,0 +1,85 @@
+- name: Get Apache config content
+  slurp:
+    src: /etc/httpd/conf/httpd.conf
+  register: httpd_conf
+
+- name: Get Apache port from config
+  set_fact:
+    apache_port: "{{ httpd_conf['content'] | b64decode | regex_search('(?<=\\nListen\\s)[0-9]+') }}"
+
+- name: Test Apache port
+  wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ apache_port }}"
+    state: started
+    timeout: 5
+  vars:
+    ansible_connection: local
+    ansible_become: no 
+  register: port_state
+  ignore_errors: true
+
+- name: Troubleshooting process issue
+  block:
+
+  - name: Try to start httpd service
+    service:
+        name: httpd
+        state: started
+        enabled: yes
+    register: service_state
+    ignore_errors: true
+
+  - name: Troubleshooting service state
+    block:
+
+    - name: Find out if some process is using port
+      shell: netstat -ntlp | grep ":{{ apache_port }}" | awk '{print $7}' | awk -F/ '{print $1}' | head -1
+      register: pid
+
+    - name: Stop the service using port
+      block:
+
+      - name: Get process name by PID
+        shell: ps -p "{{ pid.stdout }}" o comm=
+        register: service_name
+
+      - name: Stop the service using Apache port
+        service:
+            name: "{{ service_name.stdout }}"
+            state: stopped
+            enabled: no
+    
+      when: pid.stdout | length > 0
+    
+    - name: Test Apache config
+      shell: apachectl configtest
+      register: configtest
+      failed_when: "'Syntax OK' not in configtest.stdout + configtest.stderr"
+    
+    - name: Restart httpd service
+      service:
+        name: httpd
+        state: restarted
+        enabled: yes
+    
+    when: service_state is failed
+
+  - name: Test Apache port again
+    wait_for:
+      host: "{{ ansible_host }}"
+      port: "{{ apache_port }}"
+      delay: 3
+      state: started
+      timeout: 5
+    vars:
+      ansible_connection: local
+      ansible_become: no 
+    register: port_state
+
+  when: port_state is failed
+
+- name: Notify user about Apache service state
+  debug:
+    msg: "Apache port is reachable on {{ inventory_hostname }}."
+  when: port_state is succeeded
